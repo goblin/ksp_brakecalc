@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<body onload="add_bodies();">
+<script>
+var bodies = {
+	Kerbol: 17.131,
+	Moho: 2.698,
+	Eve: 16.677,
+	Gilly: 0.049,
+	Kerbin: 9.81,
+	Mun: 1.628,
+	Minmus: 0.491,
+	Duna: 2.943,
+	Ike: 1.099,
+	Dres: 1.128,
+	Jool: 7.848,
+	Laythe: 7.848,
+	Vall: 2.305,
+	Tylo: 7.848,
+	Bop: 0.589,
+	Pol: 0.373,
+	Eeloo: 1.687
+};
+
+function add_bodies() {
+	Object.keys(bodies).forEach(function (key) {
+		document.getElementById("body").innerHTML += "<option value=\"" + key + "\">" + key + "</option>";
+	});
+}
+
+function unset_body() {
+	document.getElementById("body").selectedIndex = 0;
+}
+
+function update_body() {
+	var value = document.getElementById("body").value;
+	if(value != "") {
+		document.getElementById("g").value = bodies[value];
+	}
+}
+
+function getParam(name) {
+	return Number(document.getElementById(name).value);
+}
+
+function update_twr() {
+	var mass = getParam("ship_mass");
+	var tp = 1000 * getParam("thruster_power");
+	var g = getParam("g");
+
+	if((mass > 0) && (tp > 0) && (g > 0)) {
+		var twr = tp / (mass * g);
+		document.getElementById("twr").value = twr;
+	}
+}
+
+function setresult(result) {
+	document.getElementById("result_text").innerHTML = result;
+}
+
+// copy&pasta from http://www.javascripter.net/faq/plotafunctiongraph.htm
+function drawGraph(fun, canv) {
+ var canvas = document.getElementById(canv);
+ if (null==canvas || !canvas.getContext) return;
+
+ var axes={}, ctx=canvas.getContext("2d");
+ axes.x0 = .5 + .5*canvas.width;  // x0 pixels from left to x=0
+ axes.y0 = .5 + .5*canvas.height; // y0 pixels from top to y=0
+ axes.scale = 40;                 // 40 pixels from x=0 to x=1
+ axes.doNegativeX = false;
+
+ showAxes(ctx,axes);
+ funGraph(ctx,axes,fun,"rgb(11,153,11)",2); 
+}
+function funGraph (ctx,axes,func,color,thick) {
+ var xx, yy, dx=4, x0=axes.x0, y0=axes.y0, scale=axes.scale;
+ var iMax = Math.round((ctx.canvas.width-x0)/dx);
+ var iMin = axes.doNegativeX ? Math.round(-x0/dx) : 0;
+ ctx.beginPath();
+ ctx.lineWidth = thick;
+ ctx.strokeStyle = color;
+
+ for (var i=iMin;i<=iMax;i++) {
+  xx = dx*i; yy = scale*func(xx/scale);
+  if (i==iMin) ctx.moveTo(x0+xx,y0-yy);
+  else         ctx.lineTo(x0+xx,y0-yy);
+ }
+ ctx.stroke();
+}
+function showAxes(ctx,axes) {
+ var x0=axes.x0, w=ctx.canvas.width;
+ var y0=axes.y0, h=ctx.canvas.height;
+ var xmin = axes.doNegativeX ? 0 : x0;
+ ctx.beginPath();
+ ctx.strokeStyle = "rgb(128,128,128)"; 
+ ctx.moveTo(xmin,y0); ctx.lineTo(w,y0);  // X axis
+ ctx.moveTo(x0,0);    ctx.lineTo(x0,h);  // Y axis
+ ctx.stroke();
+}
+
+function v_fun(a0, v0, t_thrust, a1, t) {
+	if(t <= t_thrust) {
+		return v0 + a0 * t;
+	} else {
+		return v_fun(a0, v0, t_thrust, a1, t_thrust) + a1 * t;
+	}
+}
+
+function h_fun(a0, h0, v0, t_thrust, a1, t) {
+	if(t <= t_thrust) {
+		return h0 + v0 * t + a0 * t * t / 2;
+	} else {
+		return h_fun(a0, h0, v0, t_thrust, a1, t_thrust) + 
+			v_fun(a0, v0, t_thrust, a1, t_thrust) * t + 
+			a1 * t * t / 2;
+	}
+}
+
+function draw_graphs(a0, h0, v0, t_thrust, t_land, a1) {
+	drawGraph(function (x) { return h_fun(a0, h0, v0, t_thrust, a1, x); }, "h_graph");
+	drawGraph(function (x) { return v_fun(a0, v0, t_thrust, a1, x); }, "v_graph");
+}
+
+// need that cause a1 is zero which introduces too many divisions by 0.
+function twr1_solution(a0, h0, v0, dest_v) {
+	var t = -h0 / (v0 - 1);
+	var diff = v0 - dest_v;
+	if(v0 < dest_v) {
+		draw_graphs(a0, h0, v0, 0, t, 0);
+		setresult("You'll SPLAT! Not enough TWR or you're going too fast. If you activate thrusters now, you'll hit the ground in " + t + " seconds at your current speed of " + (-v0) + " m/s which is " + (-diff) + " m/s faster than specified.");
+	} else {
+		var result_t = diff / a0;
+		var h_thruster = h0 + v0 * result_t + a0 * result_t * result_t / 2;
+		var land_t = -result_t - h_thruster / dest_v;
+		draw_graphs(a0, h0, v0, -result_t, land_t, 0);
+		setresult("Activate thrusters " + (-result_t) + " seconds from now and keep them on until landing in " + land_t + " seconds.");
+	}
+}
+
+function activate_now_solution(a1, h0, v0, dest_v) {
+	var t = -(Math.sqrt(v0*v0 - 2 * a1 * h0) + v0)/a1;
+	var v = v0 + a1 * t;
+	var diff = v - dest_v;
+	draw_graphs(0, h0, v0, 0, t, a1);
+	setresult("You'll SPLAT! Not enough TWR or you're going too fast. If you activate thrusters now, you'll hit the ground in " + t + " seconds at " + (-v) + " m/s which is " + (-diff) + " m/s faster than specified.");
+}
+
+function calculate() {
+	var a0 = -getParam("g");
+	var a1 = a0 -a0 * getParam("twr");
+	var h0 = getParam("h0");
+	var v0 = -getParam("v0");
+	var dest_v = -getParam("dest_v");
+
+	if(a0 >= 0) {
+		setresult("g must be positive");
+		return;
+	}
+
+	if(a1 <= a0) {
+		setresult("TWR must be positive");
+		return;
+	}
+
+	if(h0 <= 0) {
+		setresult("initial height must be positive");
+		return;
+	}
+
+	if(v0 > 0) {
+		setresult("initial speed must be non-negative");
+		return;
+	}
+
+	if(dest_v > 0) {
+		setresult("final speed must be non-negative");
+		return;
+	}
+
+	var t_impact = -(Math.sqrt((a1*a1-a0*a1)*v0*v0+(2*a0*a0*a1-2*a0*a1*a1)*h0+(a0*a0-a0*a1)*dest_v*dest_v)+a1*v0-a0*dest_v)/(a0*a1);
+	var t_thrust = (-(Math.sqrt((a1*a1-a0*a1)*v0*v0+(2*a0*a0*a1-2*a0*a1*a1)*h0+(a0*a0-a0*a1)*dest_v*dest_v)+a1*v0-a0*dest_v)/a0+v0-dest_v)/(a1-a0);
+
+	if(a1 == 0) {
+		return twr1_solution(a0, h0, v0, dest_v);
+	}
+
+	if(isNaN(t_impact) || isNaN(t_thrust) || (t_thrust < 0)) {
+		return activate_now_solution(a1, h0, v0, dest_v);
+	}
+
+	draw_graphs(a0, h0, v0, t_thrust, t_impact, a1);
+	setresult("Activate thrusters in " + t_thrust + " seconds and keep them on until landing in " + t_impact + " seconds.");
+}
+</script>
+<ul>
+<li>g: <input id="g" onchange="unset_body();"/> m/s^2
+	(or choose body: <select id="body" onchange="update_body();">
+		<option value="">(other)</option>
+	</select>)</li>
+<li>TWR: <input id="twr" /> 
+	(or ship's mass <input id="ship_mass" /> kg
+	and thruster power <input id="thruster_power" /> kN 
+	<button type="button" onclick="update_twr();">update TWR</button>)</li>
+<li>initial height above terrain: <input id="h0" /> m</li>
+<li>initial vertical speed (how fast are we going down at the above height): <input id="v0" value="0" /> m/s</li>
+<li>desired vertical speed at touchdown: <input id="dest_v" value="0" /> m/s</li>
+</ul>
+<button type="button" onclick="calculate()">Calculate</button>
+<p id="result_text"></p>
+<canvas id="h_graph" width="200" height="200"></canvas>
+<canvas id="v_graph" width="200" height="200"></canvas>
+</body>
+</html>

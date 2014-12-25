@@ -1,0 +1,49 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 13.04.2 ] */
+
+/* [wxMaxima: input   start ] */
+hA(t) := h0 + v0 * t + a0 * t^2/2;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+vA(t) := ''(diff(hA(t), t));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+hB(t) := hA(t_thrust) + vA(t_thrust) * (t - t_thrust) + a1 * (t - t_thrust)^2 / 2;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+vB(t) := ''(diff(hB(t), t));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+vsol: solve(vB(t) = dest_v, t_thrust);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+hsol: solve(ev(hB(t), vsol[1]) = 0, t);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+t_impact: rhs(hsol[1]);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+result: ev(vsol[1], t=t_impact);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+data: [a0=-1.5, a1=11.5, h0=1000, v0=0, dest_v=0];
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+t_impact, data;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+result, data;
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$
