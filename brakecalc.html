@@ -66,7 +66,7 @@ function v_fun(a0, v0, t_thrust, a1, t) {
 	if(t <= t_thrust) {
 		return v0 + a0 * t;
 	} else {
-		return v_fun(a0, v0, t_thrust, a1, t_thrust) + a1 * t;
+		return v_fun(a0, v0, t_thrust, a1, t_thrust) + a1 * (t- t_thrust);
 	}
 }
 
@@ -75,8 +75,8 @@ function h_fun(a0, h0, v0, t_thrust, a1, t) {
 		return h0 + v0 * t + a0 * t * t / 2;
 	} else {
 		return h_fun(a0, h0, v0, t_thrust, a1, t_thrust) + 
-			v_fun(a0, v0, t_thrust, a1, t_thrust) * t + 
-			a1 * t * t / 2;
+			v_fun(a0, v0, t_thrust, a1, t_thrust) * (t-t_thrust) + 
+			a1 * Math.pow(t-t_thrust, 2) / 2;
 	}
 }
 
@@ -162,7 +162,7 @@ function calculate() {
 	draw_graphs(a0, h0, v0, t_thrust, t_impact, a1);
 	if(t_thrust > t_impact) {
 		setresult("No need for thrusters. You'll hit the ground in " + t_impact + " seconds at " + " TODO m/s");
-	} else if(isNaN(t_impact) || isNaN(t_thrust) || (t_thrust < 0) || (diff_v < 0)) {
+	} else if(isNaN(t_impact) || isNaN(t_thrust) || (t_thrust < 0) || (diff_v < -0.001)) {
 		setresult("You'll SPLAT! Not enough TWR or you're going too fast. If you activate thrusters now, you'll hit the ground in " + t_impact + " seconds at " + (-v_impact) + " m/s which is " + (-diff_v) + " m/s faster than specified.");
 	} else {
 		setresult("Activate thrusters in " + t_thrust + " seconds and keep them on until landing in " + t_impact + " seconds.");
