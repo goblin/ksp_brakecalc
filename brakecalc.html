@@ -176,7 +176,7 @@ function calculate() {
 
 	var diff_v = v_impact - dest_v;
 	if(t_thrust > t_impact) {
-		setresult("No need for thrusters. You'll hit the ground in " + t_impact + " seconds at " + (-v_impact) + " m/s");
+		setresult("No need for thrusters. You'll hit the ground in " + t_impact + " seconds at " + (-v_impact) + " m/s.");
 	} else if(isNaN(t_impact) || isNaN(t_thrust) || (t_thrust < 0) || (diff_v < -0.001)) {
 		setresult("You'll SPLAT! Not enough TWR or you're going too fast. If you activate thrusters now, you'll hit the ground in " 
 			+ t_impact + " seconds at " + (-v_impact) + " m/s which is " + (-diff_v) + " m/s faster than specified.");
