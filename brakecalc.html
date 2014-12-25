@@ -89,8 +89,8 @@ function draw_graphs(a0, h0, v0, t_thrust, t_land, a1) {
 		v_data.push([i, v_fun(a0, v0, t_thrust, a1, i)]);
 	}
 	
-	$.plot("#h_graph", [ h_data ]);
-	$.plot("#v_graph", [ v_data ]);
+	$.plot("#h_graph", [ { label: "h(t)", data: h_data, color: 0 } ]);
+	$.plot("#v_graph", [ { label: "v(t)", data: v_data, color: 1 } ]);
 }
 
 // need that cause a1 is zero which introduces too many divisions by 0.
