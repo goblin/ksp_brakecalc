@@ -178,9 +178,12 @@ function calculate() {
 	if(t_thrust > t_impact) {
 		setresult("No need for thrusters. You'll hit the ground in " + t_impact + " seconds at " + (-v_impact) + " m/s");
 	} else if(isNaN(t_impact) || isNaN(t_thrust) || (t_thrust < 0) || (diff_v < -0.001)) {
-		setresult("You'll SPLAT! Not enough TWR or you're going too fast. If you activate thrusters now, you'll hit the ground in " + t_impact + " seconds at " + (-v_impact) + " m/s which is " + (-diff_v) + " m/s faster than specified.");
+		setresult("You'll SPLAT! Not enough TWR or you're going too fast. If you activate thrusters now, you'll hit the ground in " 
+			+ t_impact + " seconds at " + (-v_impact) + " m/s which is " + (-diff_v) + " m/s faster than specified.");
 	} else {
-		setresult("Activate thrusters in " + t_thrust + " seconds and keep them on until landing in " + t_impact + " seconds.");
+		setresult("Activate thrusters in " + t_thrust + " seconds (your speed will be "
+			+ (-v_fun(a0, v0, t_thrust, a1, t_thrust)) + " m/s at that point) and keep them on until landing in " 
+			+ t_impact + " seconds.");
 	}
 	draw_graphs(a0, h0, v0, t_thrust, t_impact, a1);
 
