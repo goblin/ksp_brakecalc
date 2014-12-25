@@ -182,15 +182,16 @@ function calculate() {
 			+ t_impact + " seconds at " + (-v_impact) + " m/s which is " + (-diff_v) + " m/s faster than specified.");
 	} else {
 		setresult("Activate thrusters in " + t_thrust + " seconds (your speed will be "
-			+ (-v_fun(a0, v0, t_thrust, a1, t_thrust)) + " m/s at that point) and keep them on until landing in " 
-			+ t_impact + " seconds.");
+			+ (-v_fun(a0, v0, t_thrust, a1, t_thrust)) + " m/s at that point, and your height "
+			+ h_fun(a0, h0, v0, t_thrust, a1, t_thrust) + " m) and keep them on until landing in " 
+			+ t_impact + " seconds. That will cost you about " + ((t_impact - t_thrust) * (a1 - a0)) + " m/s &#916;V.");
 	}
 	draw_graphs(a0, h0, v0, t_thrust, t_impact, a1);
 
 }
 </script>
 <h1>goblin's thruster landing calculator for KSP</h1>
-<p>This calculator will find the right time to fire your thrusters in order to ensure a safe landing.</p>
+<p>This calculator will find the right time to fire your thrusters in order to estimate a safe landing.</p>
 <p>It is well-known that the best strategy for landing is to fire your thrusters on max at the last 
 possible moment - so this tool will find that right moment.</p>
 <p>It doesn't support atmosphere and it doesn't take into account the fact that the ship will get lighter as it burns
