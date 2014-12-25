@@ -164,11 +164,12 @@ function calculate() {
 		t_thrust = (-(Math.sqrt((a1*a1-a0*a1)*v0*v0+(2*a0*a0*a1-2*a0*a1*a1)*h0+(a0*a0-a0*a1)*dest_v*dest_v)+a1*v0-a0*dest_v)/a0+v0-dest_v)/(a1-a0);
 		if(t_thrust < 0) {
 			t_thrust = 0;
-			t_impact = -(sqrt(v0*v0 - 2 * a1 * h0) + v0)/a1;
+			t_impact = -(Math.sqrt(v0*v0 - 2 * a1 * h0) + v0)/a1;
 		}
 	}
 	if(t_thrust > t_impact) {
 		v_impact = v_impact_at_freefall;
+		t_impact = t_impact_at_freefall;
 	} else {
 		v_impact = v0 + a0 * t_thrust + a1 * (t_impact - t_thrust);
 	}
