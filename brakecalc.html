@@ -64,16 +64,19 @@ function drawGraph(fun, canv) {
  if (null==canvas || !canvas.getContext) return;
 
  var axes={}, ctx=canvas.getContext("2d");
+ ctx.clearRect(0, 0, canvas.width, canvas.height);
+
  axes.x0 = .5 + .5*canvas.width;  // x0 pixels from left to x=0
  axes.y0 = .5 + .5*canvas.height; // y0 pixels from top to y=0
- axes.scale = 40;                 // 40 pixels from x=0 to x=1
+ axes.scalex = 1;                 // pixels from x=0 to x=1
+ axes.scaley = 0.2;                 // pixels from y=0 to y=1
  axes.doNegativeX = false;
 
  showAxes(ctx,axes);
  funGraph(ctx,axes,fun,"rgb(11,153,11)",2); 
 }
 function funGraph (ctx,axes,func,color,thick) {
- var xx, yy, dx=4, x0=axes.x0, y0=axes.y0, scale=axes.scale;
+ var xx, yy, dx=4, x0=axes.x0, y0=axes.y0;
  var iMax = Math.round((ctx.canvas.width-x0)/dx);
  var iMin = axes.doNegativeX ? Math.round(-x0/dx) : 0;
  ctx.beginPath();
@@ -81,7 +84,7 @@ function funGraph (ctx,axes,func,color,thick) {
  ctx.strokeStyle = color;
 
  for (var i=iMin;i<=iMax;i++) {
-  xx = dx*i; yy = scale*func(xx/scale);
+  xx = dx*i; yy = axes.scaley*func(xx/axes.scalex);
   if (i==iMin) ctx.moveTo(x0+xx,y0-yy);
   else         ctx.lineTo(x0+xx,y0-yy);
  }
@@ -126,14 +129,12 @@ function twr1_solution(a0, h0, v0, dest_v) {
 	var t = -h0 / (v0 - 1);
 	var diff = v0 - dest_v;
 	if(v0 < dest_v) {
-		draw_graphs(a0, h0, v0, 0, t, 0);
-		setresult("You'll SPLAT! Not enough TWR or you're going too fast. If you activate thrusters now, you'll hit the ground in " + t + " seconds at your current speed of " + (-v0) + " m/s which is " + (-diff) + " m/s faster than specified.");
+		return [0, t];
 	} else {
 		var result_t = diff / a0;
 		var h_thruster = h0 + v0 * result_t + a0 * result_t * result_t / 2;
 		var land_t = -result_t - h_thruster / dest_v;
-		draw_graphs(a0, h0, v0, -result_t, land_t, 0);
-		setresult("Activate thrusters " + (-result_t) + " seconds from now and keep them on until landing in " + land_t + " seconds.");
+		return [-result_t, land_t];
 	}
 }
 
@@ -177,19 +178,28 @@ function calculate() {
 		return;
 	}
 
-	var t_impact = -(Math.sqrt((a1*a1-a0*a1)*v0*v0+(2*a0*a0*a1-2*a0*a1*a1)*h0+(a0*a0-a0*a1)*dest_v*dest_v)+a1*v0-a0*dest_v)/(a0*a1);
-	var t_thrust = (-(Math.sqrt((a1*a1-a0*a1)*v0*v0+(2*a0*a0*a1-2*a0*a1*a1)*h0+(a0*a0-a0*a1)*dest_v*dest_v)+a1*v0-a0*dest_v)/a0+v0-dest_v)/(a1-a0);
+	var t_impact;
+	var t_thrust;
 
 	if(a1 == 0) {
-		return twr1_solution(a0, h0, v0, dest_v);
+		twr1sol = twr1_solution(a0, h0, v0, dest_v);
+		t_thrust = twr1sol[0];
+		t_impact = twr1sol[1];
+	} else {
+		t_impact = -(Math.sqrt((a1*a1-a0*a1)*v0*v0+(2*a0*a0*a1-2*a0*a1*a1)*h0+(a0*a0-a0*a1)*dest_v*dest_v)+a1*v0-a0*dest_v)/(a0*a1);
+		t_thrust = (-(Math.sqrt((a1*a1-a0*a1)*v0*v0+(2*a0*a0*a1-2*a0*a1*a1)*h0+(a0*a0-a0*a1)*dest_v*dest_v)+a1*v0-a0*dest_v)/a0+v0-dest_v)/(a1-a0);
 	}
 
-	if(isNaN(t_impact) || isNaN(t_thrust) || (t_thrust < 0)) {
-		return activate_now_solution(a1, h0, v0, dest_v);
+	if(t_thrust > t_impact) {
+		draw_graphs(a0, h0, v0, t_thrust, t_impact, a1);
+		setresult("No need for thrusters. You'll hit the ground in " + t_impact + " seconds at " + " TODO m/s");
+	} else if(isNaN(t_impact) || isNaN(t_thrust) || (t_thrust < 0)) {
+		activate_now_solution(a1, h0, v0, dest_v);
+	} else {
+		draw_graphs(a0, h0, v0, t_thrust, t_impact, a1);
+		setresult("Activate thrusters in " + t_thrust + " seconds and keep them on until landing in " + t_impact + " seconds.");
 	}
 
-	draw_graphs(a0, h0, v0, t_thrust, t_impact, a1);
-	setresult("Activate thrusters in " + t_thrust + " seconds and keep them on until landing in " + t_impact + " seconds.");
 }
 </script>
 <ul>
