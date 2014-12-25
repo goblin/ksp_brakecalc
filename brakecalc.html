@@ -1,5 +1,26 @@
 <!DOCTYPE html>
 <html>
+<head>
+<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.min.js"></script>
+<script>
+	$(function() {
+
+		var d1 = [];
+		for (var i = 0; i < 14; i += 0.5) {
+			d1.push([i, Math.sin(i)]);
+		}
+
+		var d2 = [[0, 3], [4, 8], [8, 5], [9, 13]];
+
+		// A null signifies separate line segments
+
+		var d3 = [[0, 12], [7, 12], null, [7, 2.5], [12, 2.5]];
+
+		$.plot("#placeholder", [ d1, d2, d3 ]);
+	});
+</script>
+</head>
 <body onload="add_bodies();">
 <script>
 var bodies = {
@@ -218,5 +239,6 @@ function calculate() {
 <p id="result_text"></p>
 <canvas id="h_graph" width="200" height="200"></canvas>
 <canvas id="v_graph" width="200" height="200"></canvas>
+<div id="placeholder" style="width: 850px; height: 450px"></div>
 </body>
 </html>
