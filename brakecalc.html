@@ -130,7 +130,7 @@ function calculate() {
 	}
 
 	if(h0 <= 0) {
-		setresult("initial height must be positive");
+		setresult("initial altitude must be positive");
 		return;
 	}
 
@@ -182,7 +182,7 @@ function calculate() {
 			+ t_impact + " seconds at " + (-v_impact) + " m/s which is " + (-diff_v) + " m/s faster than specified.");
 	} else {
 		setresult("Activate thrusters in " + t_thrust + " seconds (your speed will be "
-			+ (-v_fun(a0, v0, t_thrust, a1, t_thrust)) + " m/s at that point, and your height "
+			+ (-v_fun(a0, v0, t_thrust, a1, t_thrust)) + " m/s at that point, and your altitude "
 			+ h_fun(a0, h0, v0, t_thrust, a1, t_thrust) + " m) and keep them on until landing in " 
 			+ t_impact + " seconds. That will cost you about " + ((t_impact - t_thrust) * (a1 - a0)) + " m/s &#916;V.");
 	}
@@ -207,8 +207,8 @@ possible moment - so this tool will find that right moment.</p>
 	(or ship's mass <input id="ship_mass" /> kg
 	and thruster power <input id="thruster_power" /> kN 
 	<button type="button" onclick="update_twr();">update TWR</button>)</li>
-<li>initial height above terrain: <input id="h0" /> m</li>
-<li>initial vertical speed (how fast are we going down at the above height): <input id="v0" value="0" /> m/s</li>
+<li>initial altitude above terrain: <input id="h0" /> m</li>
+<li>initial vertical speed (how fast are we going down at the above altitude): <input id="v0" value="0" /> m/s</li>
 <li>desired vertical speed at touchdown: <input id="dest_v" value="0" /> m/s</li>
 </ul>
 <button type="button" onclick="calculate()">Calculate</button>
