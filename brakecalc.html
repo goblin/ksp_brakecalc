@@ -97,7 +97,12 @@ function draw_graphs(a0, h0, v0, t_thrust, t_land, a1) {
 function twr1_solution(a0, h0, v0, dest_v) {
 	var t = -h0 / (v0 - 1);
 	var diff = v0 - dest_v;
-	if(v0 < dest_v) {
+
+	if(v0 == 0) {
+		setresult("If you activate thrusters now, you'll never land. You need higher TWR.");
+		draw_graphs(a0, h0, v0, 0, 100, 0);
+		return "";
+	} else if(v0 < dest_v) {
 		return [0, t, v0];
 	} else {
 		var result_t = diff / a0;
@@ -145,6 +150,9 @@ function calculate() {
 
 	if(a1 == 0) {
 		twr1sol = twr1_solution(a0, h0, v0, dest_v);
+		if(twr1sol == "") {
+			return;
+		}
 		t_thrust = twr1sol[0];
 		t_impact = twr1sol[1];
 		v_impact = twr1sol[2];
