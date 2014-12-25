@@ -95,7 +95,7 @@ function draw_graphs(a0, h0, v0, t_thrust, t_land, a1) {
 
 // need that cause a1 is zero which introduces too many divisions by 0.
 function twr1_solution(a0, h0, v0, dest_v) {
-	var t = -h0 / (v0 - 1);
+	var t = -h0 / v0;
 	var diff = v0 - dest_v;
 
 	if(v0 == 0) {
