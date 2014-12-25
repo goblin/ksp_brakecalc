@@ -99,7 +99,7 @@ function twr1_solution(a0, h0, v0, dest_v) {
 	var diff = v0 - dest_v;
 
 	if(v0 == 0) {
-		setresult("If you activate thrusters now, you'll never land. You need higher TWR.");
+		setresult("If you activate thrusters now, you'll never land. You need higher TWR. Or set the initial speed to something other than 0.");
 		draw_graphs(a0, h0, v0, 0, 100, 0);
 		return "";
 	} else if(v0 < dest_v) {
@@ -148,6 +148,9 @@ function calculate() {
 	var t_thrust;
 	var v_impact;
 
+	var t_impact_at_freefall = -(Math.sqrt(v0 * v0 - 2 * a0 * h0) + v0)/a0;
+	var v_impact_at_freefall = v0 + a0 * t_impact_at_freefall;
+
 	if(a1 == 0) {
 		twr1sol = twr1_solution(a0, h0, v0, dest_v);
 		if(twr1sol == "") {
@@ -163,11 +166,14 @@ function calculate() {
 			t_thrust = 0;
 			t_impact = -(sqrt(v0*v0 - 2 * a1 * h0) + v0)/a1;
 		}
+	}
+	if(t_thrust > t_impact) {
+		v_impact = v_impact_at_freefall;
+	} else {
 		v_impact = v0 + a0 * t_thrust + a1 * (t_impact - t_thrust);
 	}
 
 	var diff_v = v_impact - dest_v;
-	draw_graphs(a0, h0, v0, t_thrust, t_impact, a1);
 	if(t_thrust > t_impact) {
 		setresult("No need for thrusters. You'll hit the ground in " + t_impact + " seconds at " + (-v_impact) + " m/s");
 	} else if(isNaN(t_impact) || isNaN(t_thrust) || (t_thrust < 0) || (diff_v < -0.001)) {
@@ -175,6 +181,7 @@ function calculate() {
 	} else {
 		setresult("Activate thrusters in " + t_thrust + " seconds and keep them on until landing in " + t_impact + " seconds.");
 	}
+	draw_graphs(a0, h0, v0, t_thrust, t_impact, a1);
 
 }
 </script>
