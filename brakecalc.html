@@ -93,6 +93,11 @@ function draw_graphs(a0, h0, v0, t_thrust, t_land, a1) {
 	$.plot("#v_graph", [ { label: "v(t)", data: v_data, color: 1 } ]);
 }
 
+function round(num, digits) {
+	var mult = Math.pow(10, digits);
+	return Math.round(mult * num) / mult;
+}
+
 // need that cause a1 is zero which introduces too many divisions by 0.
 function twr1_solution(a0, h0, v0, dest_v) {
 	var t = -h0 / v0;
@@ -176,15 +181,16 @@ function calculate() {
 
 	var diff_v = v_impact - dest_v;
 	if(t_thrust > t_impact) {
-		setresult("No need for thrusters. You'll hit the ground in " + t_impact + " seconds at " + (-v_impact) + " m/s.");
+		setresult("No need for thrusters. You'll hit the ground in " + round(t_impact, 1) + " seconds at " + round(-v_impact, 1) + " m/s.");
 	} else if(isNaN(t_impact) || isNaN(t_thrust) || (t_thrust < 0) || (diff_v < -0.001)) {
 		setresult("You'll SPLAT! Not enough TWR or you're going too fast. If you activate thrusters now, you'll hit the ground in " 
-			+ t_impact + " seconds at " + (-v_impact) + " m/s which is " + (-diff_v) + " m/s faster than specified.");
+			+ round(t_impact, 1) + " seconds at " + round(-v_impact, 1) + " m/s which is " + round(-diff_v, 1) + " m/s faster than specified.");
 	} else {
-		setresult("Activate thrusters in " + t_thrust + " seconds (your speed will be "
-			+ (-v_fun(a0, v0, t_thrust, a1, t_thrust)) + " m/s at that point, and your altitude "
-			+ h_fun(a0, h0, v0, t_thrust, a1, t_thrust) + " m) and keep them on until landing in " 
-			+ t_impact + " seconds. That will cost you about " + ((t_impact - t_thrust) * (a1 - a0)) + " m/s &#916;V.");
+		setresult("Activate thrusters in " + round(t_thrust, 1) + " seconds (your speed will be "
+			+ round(-v_fun(a0, v0, t_thrust, a1, t_thrust), 1) + " m/s at that point, and your altitude "
+			+ round(h_fun(a0, h0, v0, t_thrust, a1, t_thrust), 1) + " m) and keep them on until landing for " 
+			+ round(t_impact - t_thrust, 1) + " seconds. That will cost you about " + round((t_impact - t_thrust) * (a1 - a0), 1) 
+			+ " m/s &#916;V.");
 	}
 	draw_graphs(a0, h0, v0, t_thrust, t_impact, a1);
 
