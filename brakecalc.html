@@ -48,7 +48,7 @@ function getParam(name) {
 }
 
 function update_twr() {
-	var mass = getParam("ship_mass");
+	var mass = 1000 * getParam("ship_mass");
 	var tp = 1000 * getParam("thruster_power");
 	var g = getParam("g");
 
@@ -210,7 +210,7 @@ possible moment - so this tool will find that right moment.</p>
 		<option value="">(other)</option>
 	</select>)</li>
 <li>TWR: <input id="twr" /> 
-	(or ship's mass <input id="ship_mass" /> kg
+	(or ship's mass <input id="ship_mass" /> t
 	and thruster power <input id="thruster_power" /> kN 
 	<button type="button" onclick="update_twr();">update TWR</button>)</li>
 <li>initial altitude above terrain: <input id="h0" /> m</li>
