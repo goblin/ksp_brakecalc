@@ -104,9 +104,18 @@ function twr1_solution(a0, h0, v0, dest_v) {
 	var diff = v0 - dest_v;
 
 	if(v0 == 0) {
-		setresult("If you activate thrusters now, you'll never land. You need higher TWR. Or set the initial speed to something other than 0.");
-		draw_graphs(a0, h0, v0, 0, 100, 0);
-		return "";
+		if(dest_v == 0) {
+			setresult("You've hit a special case. If you activate thrusters now, you'll never land. If you activate them " +
+				"later, you'll exceed the desired speed. You need higher TWR, or set the initial or final speed to something " +
+				"other than 0.");
+			draw_graphs(a0, h0, v0, 0, 100, 0);
+			return "";
+		} else {
+			var thrust_t = dest_v / a0;
+			var thrust_height = h_fun(a0, h0, 0, thrust_t, 0, thrust_t);
+			var land_t = -thrust_height / dest_v + thrust_t;
+			return [dest_v / a0, land_t, dest_v];
+		}
 	} else if(v0 < dest_v) {
 		return [0, t, v0];
 	} else {
@@ -167,16 +176,17 @@ function calculate() {
 	} else {
 		t_impact = -(Math.sqrt((a1*a1-a0*a1)*v0*v0+(2*a0*a0*a1-2*a0*a1*a1)*h0+(a0*a0-a0*a1)*dest_v*dest_v)+a1*v0-a0*dest_v)/(a0*a1);
 		t_thrust = (-(Math.sqrt((a1*a1-a0*a1)*v0*v0+(2*a0*a0*a1-2*a0*a1*a1)*h0+(a0*a0-a0*a1)*dest_v*dest_v)+a1*v0-a0*dest_v)/a0+v0-dest_v)/(a1-a0);
-	}
-	if(isNaN(t_thrust) || (t_thrust < 0)) {
-		t_thrust = 0;
-		t_impact = -(Math.sqrt(v0*v0 - 2 * a1 * h0) + v0)/a1;
-	}
-	if(t_thrust > t_impact) {
-		v_impact = v_impact_at_freefall;
-		t_impact = t_impact_at_freefall;
-	} else {
-		v_impact = v0 + a0 * t_thrust + a1 * (t_impact - t_thrust);
+
+		if(isNaN(t_thrust) || (t_thrust < 0)) {
+			t_thrust = 0;
+			t_impact = -(Math.sqrt(v0*v0 - 2 * a1 * h0) + v0)/a1;
+		}
+		if(t_thrust > t_impact) {
+			v_impact = v_impact_at_freefall;
+			t_impact = t_impact_at_freefall;
+		} else {
+			v_impact = v0 + a0 * t_thrust + a1 * (t_impact - t_thrust);
+		}
 	}
 
 	var diff_v = v_impact - dest_v;
@@ -184,7 +194,8 @@ function calculate() {
 		setresult("No need for thrusters. You'll hit the ground in " + round(t_impact, 1) + " seconds at " + round(-v_impact, 1) + " m/s.");
 	} else if(diff_v < -0.001) {
 		setresult("You'll SPLAT! Not enough TWR or you're going too fast. If you activate thrusters now, you'll hit the ground in " 
-			+ round(t_impact, 1) + " seconds at " + round(-v_impact, 1) + " m/s which is " + round(-diff_v, 1) + " m/s faster than specified.");
+			+ round(t_impact, 1) + " seconds at " + round(-v_impact, 1) + " m/s which is " + round(-diff_v, 1) 
+			+ " m/s faster than specified. That will cost you about " + round(t_impact * (a1 - a0), 1) + " m/s &#916;V.");
 	} else {
 		setresult("Activate thrusters in " + round(t_thrust, 1) + " seconds (your speed will be "
 			+ round(-v_fun(a0, v0, t_thrust, a1, t_thrust), 1) + " m/s at that point, and your altitude "
